@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+
+import os
+import time
+import signal
+import readline
+import colorama
+from dotenv import load_dotenv
+from string import Template
+__version__ = '0.0.1'
+
+class toysh():
+    def __init__(self):
+
+        colorama.init()
+        load_dotenv(os.path.join(os.path.expanduser("~"), ".toysh_rc"))
+
+        signal.signal(signal.SIGINT, self.signal_int)
+
+        self.histfile = os.environ.get("HISTFILE") or os.path.join(os.path.expanduser("~"), ".toysh_history")
+        self.init_history(self.histfile)
+
+        while True:
+            command = input(os.environ.get("PS1") if not None else "\x1b[32mtoysh:" + __version__ + ">\x1b[0m $ ")
+            
+        
+    def init_history(self,histfile):
+        readline.parse_and_bind("tab: complete")
+        try:
+            readline.read_history_file(histfile)
+        except FileNotFoundError:
+            pass
+
+    def save_history(self):
+        try:
+            readline.set_history_length(1000)
+            readline.write_history_file(self.histfile)
+        except FileNotFoundError:
+            pass
+
+    def signal_int(self, sig, frame):
+        self.save_history()
+        exit(1)
+"""
+while 1:
+    command = input("toysh:" + __version__ + "$ ")
+    print(Template(command).substitute(os.environ))
+"""
+
+if __name__ == "__main__":
+    toy = toysh()
